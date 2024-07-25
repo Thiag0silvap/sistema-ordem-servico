@@ -58,11 +58,23 @@ button {
 /* Responsividade */
 @media (max-width: 768px) {
     .container {
-        width: 100%;
+        width: 90%;
+        max-width: none;
+        padding: 15px;
+    }
+
+    button {
+        font-size: 14px; /* Ajusta o tamanho da fonte em telas menores */
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
         padding: 10px;
     }
 
     button {
-        font-size: 14px;
+        font-size: 12px; /* Ajusta o tamanho da fonte em telas muito pequenas */
+        padding: 8px 16px;
     }
 }
