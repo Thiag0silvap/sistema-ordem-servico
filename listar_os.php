@@ -1,15 +1,6 @@
 <?php 
 require 'db.php';
-
-// Consulta com junção das tabelas clientes e técnicos
-$ordens = $pdo->query('
-    SELECT os.*, 
-           c.nome AS cliente, 
-           t.nome AS tecnico 
-    FROM ordens_de_servico os 
-    JOIN clientes c ON os.cliente_id = c.id 
-    JOIN tecnicos t ON os.tecnico_id = t.id
-')->fetchAll(PDO::FETCH_ASSOC);
+$ordens = $pdo->query('SELECT os.numero_os, os.cliente_id, os.tecnico_id, os.data, os.descricao, os.status, c.nome AS cliente, t.nome AS tecnico FROM ordens_de_servico os JOIN clientes c ON os.cliente_id = c.id JOIN tecnicos t ON os.tecnico_id = t.id')->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -22,13 +13,13 @@ $ordens = $pdo->query('
 </head>
 <body>
     <header>
-        <h1>Listar Ordem de Serviço</h1>
+        <h1>Listar Ordem de Serviço</h1>    
     </header>
     <main>
         <table>
             <thead>
                 <tr>
-                    <th>Número da OS</th>
+                    <th>Número</th>
                     <th>Cliente</th>
                     <th>Técnico</th>
                     <th>Data</th>
@@ -46,12 +37,13 @@ $ordens = $pdo->query('
                         <td><?php echo htmlspecialchars($os['data']); ?></td>
                         <td><?php echo htmlspecialchars($os['descricao']); ?></td>
                         <td><?php echo htmlspecialchars($os['status']); ?></td>
-                        <td class="actions">
-                            <a href="atualizar_os.php?id=<?php echo $os['id']; ?>">Editar</a>
-                            <a href="excluir_os.php?id=<?php echo $os['id']; ?>" onclick="return confirm('Tem certeza que deseja excluir esta ordem de serviço?');">Excluir</a>
+                        <td>
+                            <a href="atualizar_os.php?id=<?php echo $os['numero_os']; ?>">Editar</a>
+                            <a href="excluir_os.php?id=<?php echo $os['numero_os']; ?>" onclick="return confirm('Tem certeza que deseja excluir esta ordem de serviço?');">Excluir</a>
+                            <a href="ver_os.php?id=<?php echo $os['numero_os']; ?>">Imprimir</a>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php endforeach; ?>        
             </tbody>
         </table>
     </main>

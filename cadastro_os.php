@@ -2,6 +2,17 @@
 require 'db.php';
 
 $message = '';
+function gerarNumeroOS($pdo) {
+    do {
+        // Gera um número aleatório de 6 dígitos
+        $numero_os = mt_rand(100000, 999999);
+        // Verifica se o número já existe
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM ordens_de_servico WHERE numero_os = ?');
+        $stmt->execute([$numero_os]);
+        $count = $stmt->fetchColumn();
+    } while ($count > 0);
+    return $numero_os;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $cliente_id = $_POST['cliente_id'];
@@ -9,18 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = $_POST['data'];
     $descricao = $_POST['descricao'];
     $status = $_POST['status'];
-
-    // Gerar um número único para a ordem de serviço
-    $numero_os = uniqid('OS-', true);
+    $numero_os = gerarNumeroOS($pdo);
 
     try {
         $stmt = $pdo->prepare('INSERT INTO ordens_de_servico (numero_os, cliente_id, tecnico_id, data, descricao, status) VALUES (:numero_os, :cliente_id, :tecnico_id, :data, :descricao, :status)');
         $stmt->execute([':numero_os' => $numero_os, ':cliente_id' => $cliente_id, ':tecnico_id' => $tecnico_id, ':data' => $data, ':descricao' => $descricao, ':status' => $status]);
-        $message = 'Ordem de serviço registrada com sucesso. Número da OS: ' . htmlspecialchars($numero_os);
+        $message = 'Ordem de serviço registrada com sucesso. Número da OS: ' . $numero_os;
     } catch (PDOException $e) {
         $message = 'Erro ao registrar ordem de serviço: ' . $e->getMessage();
     }
-}
+} 
 ?>
 
 <!DOCTYPE html>
