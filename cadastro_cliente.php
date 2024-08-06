@@ -28,12 +28,15 @@ try {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cadastro de Cliente</title>
-    <link rel="stylesheet" type="text/css" href="css/cliente.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cadastro.css">
 </head>
 <body>
-    <section class="container" aria-labelledby="form-title">
-        <h1 id="form-title">Cadastro de Cliente</h1>
-
+    <header>
+        <h1>Cadastro de Cliente</h1>
+    </header>
+    <main>
+        <section class="container" aria-labelledby="form-title">
         <?php if ($message): ?>
             <div class="message <?php echo strpos($message, 'Erro') !== false ? 'error' : 'success'; ?>">
                 <?php echo $message; ?>
@@ -54,5 +57,9 @@ try {
             <button type="submit">Cadastrar Cliente</button>
         </form>
     </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Sistema de Ordem de Serviço. Todos os direitos reservados.</p>
+    </footer>
 </body>
 </html>

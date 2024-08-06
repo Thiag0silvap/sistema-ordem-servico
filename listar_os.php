@@ -1,4 +1,10 @@
 <?php 
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 require 'db.php';
 $ordens = $pdo->query('SELECT os.numero_os, os.cliente_id, os.tecnico_id, os.data, os.descricao, os.status, c.nome AS cliente, t.nome AS tecnico FROM ordens_de_servico os JOIN clientes c ON os.cliente_id = c.id JOIN tecnicos t ON os.tecnico_id = t.id')->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -9,7 +15,8 @@ $ordens = $pdo->query('SELECT os.numero_os, os.cliente_id, os.tecnico_id, os.dat
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Listar Ordem de Serviço</title>
-    <link rel="stylesheet" type="text/css" href="css/listar_os.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/listar.css">
 </head>
 <body>
     <header>
@@ -19,7 +26,7 @@ $ordens = $pdo->query('SELECT os.numero_os, os.cliente_id, os.tecnico_id, os.dat
         <table>
             <thead>
                 <tr>
-                    <th>Número</th>
+                    <th>Número OS</th>
                     <th>Cliente</th>
                     <th>Técnico</th>
                     <th>Data</th>
@@ -47,5 +54,8 @@ $ordens = $pdo->query('SELECT os.numero_os, os.cliente_id, os.tecnico_id, os.dat
             </tbody>
         </table>
     </main>
+    <footer>
+    <p>&copy; 2024 Sistema de Ordem de Serviço. Todos os direitos reservados.</p>
+</footer>
 </body>
 </html>

@@ -49,59 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
  	<meta charset="utf-8">
  	<meta name="viewport" content="width=device-width, initial-scale=1">
  	<title>Atualizar Cliente</title>
- 	 <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+ 	<link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/cadastro.css">
  </head>
  <body>
- 	<section class="container"  aria-labelledby="form-title">
+ 	<header>
+ 		<h1>Atualizar Cliente</h1>
+ 	</header>
+ 	<main>
+ 		<section class="container"  aria-labelledby="form-title">
  		<h1 id="form-title">Atualizar Cliente</h1>
 
  		<form method="POST" aria-describedby="form-description">
@@ -115,9 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
  			<label for="telefone">Telefone:</label>
  			<input type="text" id="telefone" name="telefone" value="<?php echo htmlspecialchars($cliente['telefone']); ?>" required>
-
  			<button type="submit">Atualizar Cliente</button>
  		</form>
  	</section>
- </body>
+ 	</main>
+ 	<footer>
+ 		<p>&copy; 2024 Sistema de Ordem de Serviço. Todos os direitos reservados.</p>
+ 	</footer>
+ 	 </body>
  </html>
