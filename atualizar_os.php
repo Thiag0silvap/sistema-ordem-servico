@@ -1,73 +1,89 @@
 <?php 
 require 'db.php';
 
-$id = $_GET['id'];
-$stmt = $pdo->prepare('SELECT * FROM ordens_de_servico WHERE id = ?');
-$stmt->execute([$id]);
-$os = $stmt->fetch(PDO::FETCH_ASSOC);
+// Verifica se o ID do cliente foi passado pela URL
+if (isset($_GET['id'])) {
+    $cliente_id = $_GET['id'];
 
-if (!$os) {
-	echo "Ordem de serviço não encontrada!";
-	exit;
-} 
+    // Busca os dados do cliente no banco de dados
+    $stmt = $pdo->prepare('SELECT * FROM clientes WHERE id = :id');
+    $stmt->execute(['id' => $cliente_id]);
+    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-	$cliente_id = $_POST['cliente_id'];
-	$tecnico_id = $_POST['tecnico_id'];
-	$data = $_POST['data'];
-	$descricao = $_POST['descricao'];
-	$status = $_POST['status'];
+    // Verifica se o cliente foi encontrado
+    if (!$cliente) {
+        echo '<div class="alert alert-danger">Cliente não encontrado</div>';
+        exit;
+    }
+} else {
+    echo '<div class="alert alert-danger">ID do cliente não fornecido</div>';
+    exit;
 }
 
-$stmt = $pdo->prepare('UPDATE ordens_de_servico SET cliente_id = ?, tecnico_id = ?, data = ?, descricao = ?, status = ? WHERE id = ?');
+// Verifica se o formulário foi enviado
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $nome = $_POST['nome'];
+    $endereco = $_POST['endereco'];
+    $telefone = $_POST['telefone'];
 
-$stmt->execute([$cliente_id, $tecnico_id, $data, $descricao, $status, $id]);
+    // Atualiza os dados do cliente no banco de dados
+    try {
+        $stmt = $pdo->prepare('UPDATE clientes SET nome = :nome, endereco = :endereco, telefone = :telefone WHERE id = :id');
+        $stmt->execute([
+            'nome' => $nome,
+            'endereco' => $endereco,
+            'telefone' => $telefone,
+            'id' => $cliente_id
+        ]);
 
-echo 'Ordem de serviço atualizada com sucesso';
- ?>
+        echo '<div class="alert alert-success">Cliente atualizado com sucesso</div>';
+    } catch (PDOException $e) {
+        echo '<div class="alert alert-danger">Erro ao atualizar cliente: ' . $e->getMessage() . '</div>';
+    }
+}
+?>
 
- <!DOCTYPE html>
- <html lang="pt-br">
- <head>
- 	<meta charset="utf-8">
- 	<meta name="viewport" content="width=device-width, initial-scale=1">
- 	<title>Atualizar Ordem de Serviço</title>
- </head>
- <body>
- 	<h1>Atualizar Ordem de Serviço</h1>
- 	<form method="POST"> 
- 		<label for="cliente_id">Cliente:</label>
- 		<select name="cliente_id" required>
- 			<?php
- 			$clientes = $pdo->query('SELECT * FROM clientes')->fetchAll(PDO::FETCH_ASSOC);
- 			foreach ($clientes as $cliente) {
- 				$selected = $cliente['id'] == $os['cliente_id'] ? 'selected' : '';
- 				 echo '<option value="' . htmlspecialchars($cliente['id']) . '" ' . $selected . '>' . htmlspecialchars($cliente['nome']) . '</option>';
- 			}
- 			?>
- 		</select>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Atualizar Cliente</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"> <!-- Incluindo o Bootstrap -->
+</head>
+<body class="bg-light">
+    <header class="text-center py-4">
+        <h1>Atualizar Cliente</h1>
+    </header>
+    <main class="container mt-5">
+        <section aria-labelledby="form-title">
+            <h2 id="form-title" class="mb-4">Atualize os dados do cliente</h2>
 
- 		<label for="tecnico_id">Técnico:</label>
-        <select name="tecnico_id" required>
-            <?php
-            $tecnicos = $pdo->query('SELECT * FROM tecnicos')->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($tecnicos as $tecnico) {
-                $selected = $tecnico['id'] == $os['tecnico_id'] ? 'selected' : '';
-                echo '<option value="' . htmlspecialchars($tecnico['id']) . '" ' . $selected . '>' . htmlspecialchars($tecnico['nome']) . '</option>';
-            }
-            ?>
-        </select>
+            <form method="POST" aria-describedby="form-description" class="bg-white p-4 rounded shadow">
+                <p id="form-description" class="mb-3">Atualize os dados do cliente nos campos abaixo.</p>
 
- 		<label for="data">Data:</label>
- 		<input type="date" name="data" value="<?php echo htmlspecialchars($os['data']); ?>" required>
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome:</label>
+                    <input type="text" id="nome" name="nome" class="form-control" value="<?php echo htmlspecialchars($cliente['nome']); ?>" required>
+                </div>
 
- 		<label for="descricao">Descrição:</label>
- 		<textarea name="descricao" required><?php echo htmlspecialchars($os['descricao']); ?></textarea>
+                <div class="mb-3">
+                    <label for="endereco" class="form-label">Endereço:</label>
+                    <input type="text" id="endereco" name="endereco" class="form-control" value="<?php echo htmlspecialchars($cliente['endereco']); ?>" required>
+                </div>
 
- 		<label for="status">Status:</label>
- 		<input type="text" name="status" value="<?php echo htmlspecialchars($os['status']); ?>" required>
-
- 		<button type="submit">Atualizar Ordem de Serviço</button>
- 	</form>
- </body>
- </html>
+                <div class="mb-3">
+                    <label for="telefone" class="form-label">Telefone:</label>
+                    <input type="text" id="telefone" name="telefone" class="form-control" value="<?php echo htmlspecialchars($cliente['telefone']); ?>" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Atualizar Cliente</button>
+            </form>
+        </section>
+    </main>
+    <footer class="text-center py-3 mt-5">
+        <p>&copy; 2024 Sistema de Ordem de Serviço. Todos os direitos reservados.</p>
+    </footer>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script> <!-- Incluindo o JS do Bootstrap -->
+</body>
+</html>

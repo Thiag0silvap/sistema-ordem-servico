@@ -1,53 +1,64 @@
-<?php 
+<?php
+session_start();
 require 'db.php';
 
-$message = '';
-
+// Código para processar o formulário de registro
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-	$usuario = $_POST['usuario'];
-	$senha = password_hash($_POST['senha'], PASSWORD_BCRYPT);
+    $usuario = $_POST['usuario'];
+    $senha = password_hash($_POST['senha'], PASSWORD_BCRYPT);
 
-	try {
-		$stmt = $pdo->prepare('INSERT INTO usuarios (usuario, senha) VALUES (:usuario, :senha)');
-		$stmt->execute([':usuario' => $usuario, ':senha' => $senha]);
-		$message = 'Usuário registrado com sucesso. <a href="login.php">Faça login aqui</a>';
-	} catch (PDOException $e) {
-		$message = 'Erro ao registrar usuário: ' . $e->getMessage();
-	}
-} 
- ?>
+    // Verifica se o usuário já existe
+    $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE usuario = :usuario');
+    $stmt->execute(['usuario' => $usuario]);
 
- <!DOCTYPE html>
- <html lang="pt-br">
- <head>
- 	<meta charset="utf-8">
- 	<meta name="viewport" content="width=device-width, initial-scale=1">
- 	<title>Cadastro de Usuário</title>
- 	<link rel="stylesheet" type="text/css" href="css/register.css">
- </head>
- <body>
- 	<section class="container" aria-labelledby="form-title">
- 		<h1 id="form-title">Registro</h1>
- 		<?php if ($message): ?>
- 			<div class="message <?php echo isset($stmt) && $stmt ? 'success' : 'error'; ?>">
- 				<?php echo $message; ?>
- 			</div>
- 		<?php endif; ?>
- 		<form method="POST" aria-describedby="form-description">
- 			<p id="form-description">Preencha os campos abaixo para criar uma nova conta.</p>
+    if ($stmt->rowCount() > 0) {
+        $message = 'Usuário já existe. Escolha outro nome de usuário.';
+    } else {
+        $stmt = $pdo->prepare('INSERT INTO usuarios (usuario, senha) VALUES (:usuario, :senha)');
+        $stmt->execute([
+            'usuario' => $usuario,
+            'senha' => $senha
+        ]);
+        $message = 'Usuário adicionado com sucesso';
+    }
+}
+?>
 
- 			<label for="usuario">Usuário:</label>
- 			<input type="text" id="usuario" name="usuario" placeholder="Usuário" required>
-
- 			<label for="senha">Senha:</label>
- 			<input type="password" id="senha" name="senha" placeholder="Senha" required>
-
- 			<button type="submit">Registrar</button>
- 		</form>
-
- 		<div>
- 			<p>Já tem uma conta? <a href="login.php">Faça login aqui</a></p>
- 		</div>
- 	</section>
- </body>
- </html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Novo Usuário</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"> <!-- Incluindo o Bootstrap -->
+</head>
+<body class="bg-light">
+    <header class="text-center py-4">
+        <h1>Registrar Novo Usuário</h1>
+    </header>
+    <main class="container mt-5">
+        <section class="bg-white p-4 rounded shadow">
+            <?php if (isset($message)): ?>
+                <div class="alert <?php echo strpos($message, 'sucesso') !== false ? 'alert-success' : 'alert-danger'; ?>">
+                    <?php echo $message; ?>
+                </div>
+            <?php endif; ?>
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="usuario" class="form-label">Usuário:</label>
+                    <input type="text" id="usuario" name="usuario" class="form-control" placeholder="Usuário" required>
+                </div>
+                <div class="mb-3">
+                    <label for="senha" class="form-label">Senha:</label>
+                    <input type="password" id="senha" name="senha" class="form-control" placeholder="Senha" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </form>
+        </section>
+    </main>
+    <footer class="text-center py-3 mt-5">
+        <p>&copy; 2024 Sistema de Ordem de Serviço. Todos os direitos reservados.</p>
+    </footer>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script> <!-- Incluindo o JS do Bootstrap -->
+</body>
+</html>

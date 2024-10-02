@@ -1,22 +1,27 @@
 <?php
-include 'db.php';
+require 'db.php'; // Inclui o arquivo de conexão com o banco de dados
 
-// Verificar se o ID foi passado
-if (!isset($_GET['id'])) {
-    die("ID não fornecido.");
+// Obtém o ID da ordem de serviço a partir da URL
+$id = $_GET['id'] ?? null;
+
+// Verifica se o ID foi fornecido
+if (!$id) {
+    echo "Ordem de serviço não encontrada!";
+    exit;
 }
 
-$os_numero = $_GET['id'];
+// Prepara e executa a consulta para obter os detalhes da ordem de serviço
+$stmt = $pdo->prepare('SELECT os.*, c.nome AS cliente_nome, t.nome AS tecnico_nome, c.endereco AS cliente_endereco, c.telefone AS cliente_telefone, t.especialidade AS tecnico_especialidade, t.telefone AS tecnico_telefone FROM ordens_de_servico os JOIN clientes c ON os.cliente_id = c.id JOIN tecnicos t ON os.tecnico_id = t.id WHERE os.numero_os = ?');
+$stmt->execute([$id]);
+$os = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Preparar e executar a consulta
-$stmt = $pdo->prepare("SELECT os.*, c.nome AS cliente_nome, t.nome AS tecnico_nome FROM ordens_de_servico os JOIN clientes c ON os.cliente_id = c.id JOIN tecnicos t ON os.tecnico_id = t.id WHERE os.numero_os = ?");
-$stmt->execute([$os_numero]);
-$os = $stmt->fetch();
-
-// Verificar se a ordem de serviço foi encontrada
+// Verifica se a ordem de serviço foi encontrada
 if (!$os) {
-    die("Nenhuma ordem de serviço encontrada para o número: " . htmlspecialchars($os_numero));
+    echo "Ordem de serviço não encontrada!";
+    exit;
 }
+
+$data_formatada = (new DateTime($os['data']))->format('d/m/Y');
 ?>
 
 <!DOCTYPE html>
@@ -24,54 +29,55 @@ if (!$os) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Imprimir Ordem de Serviço</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .ordem-servico {
-            border: 1px solid #000;
-            padding: 10px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .header, .footer {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .content {
-            margin-top: 20px;
-        }
-        @media print {
-            body {
-                margin: 0;
-            }
-            .ordem-servico {
-                border: none;
-            }
-            button {
-                display: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Ver Ordem de Serviço</title>
 </head>
 <body>
-    <article class="ordem-servico">
-        <header class="header">
-            <h1>Ordem de Serviço</h1>
-            <p>Número: <?php echo htmlspecialchars($os['numero_os']); ?></p>
-        </header>
-        <section class="content">
-            <p><strong>Cliente:</strong> <?php echo htmlspecialchars($os['cliente_nome']); ?></p>
-            <p><strong>Técnico:</strong> <?php echo htmlspecialchars($os['tecnico_nome']); ?></p>
-            <p><strong>Descrição:</strong> <?php echo htmlspecialchars($os['descricao']); ?></p>
+<header class="bg-primary text-white text-center py-4">
+    <h1>Detalhes da Ordem de Serviço</h1>
+</header>
+<main class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Número da OS: <?php echo htmlspecialchars($os['numero_os']); ?></h5>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">Informações do Cliente</h4>
+            <p><strong>Nome:</strong> <?php echo htmlspecialchars($os['cliente_nome']); ?></p>
+            <p><strong>Endereço:</strong> <?php echo htmlspecialchars($os['cliente_endereco']); ?></p>
+            <p><strong>Telefone:</strong> <?php echo htmlspecialchars($os['cliente_telefone']); ?></p>
+            
+            <hr>
+
+            <h4 class="card-title">Detalhes do Técnico</h4>
+            <p><strong>Nome:</strong> <?php echo htmlspecialchars($os['tecnico_nome']); ?></p>
+            <p><strong>Especialidade:</strong> <?php echo htmlspecialchars($os['tecnico_especialidade']); ?></p>
+            <p><strong>Telefone:</strong> <?php echo htmlspecialchars($os['tecnico_telefone']); ?></p>
+
+            <hr>
+
+            <h4 class="card-title">Detalhes do Serviço</h4>
+            <p><strong>Data:</strong> <?php echo htmlspecialchars($data_formatada); ?></p>
+            <p><strong>Descrição:</strong> <?php echo nl2br(htmlspecialchars($os['descricao'])); ?></p>
             <p><strong>Status:</strong> <?php echo htmlspecialchars($os['status']); ?></p>
-        </section>
-        <footer class="footer">
-            <p>Obrigado por usar nossos serviços!</p>
-        </footer>
-    </article>
-    <button onclick="window.print()">Imprimir</button>
+            <p><strong>Tipo de Serviço:</strong> <?php echo htmlspecialchars($os['tipo_servico']); ?></p>
+            <p><strong>Prioridade:</strong> <?php echo htmlspecialchars($os['prioridade']); ?></p>
+            <p><strong>Prazo:</strong> <?php echo htmlspecialchars($os['prazo']); ?></p>
+            <p><strong>Materiais Utilizados:</strong> <?php echo nl2br(htmlspecialchars($os['materiais_utilizados'])); ?></p>
+            <p><strong>Custos Estimados:</strong> <?php echo htmlspecialchars($os['custos_estimados']); ?></p>
+            <p><strong>Descontos:</strong> <?php echo htmlspecialchars($os['descontos']); ?></p>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button onclick="window.print()" class="btn btn-primary">Imprimir</button>
+    </div>
+</main>
+<footer class="bg-light text-center py-3 mt-4">
+    <p>&copy; 2024 Sistema de Ordem de Serviço. Todos os direitos reservados.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
