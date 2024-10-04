@@ -35,18 +35,24 @@ $tecnicos = $pdo->query('SELECT * FROM tecnicos')->fetchAll(PDO::FETCH_ASSOC);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tecnicos as $tecnico): ?>
+                <?php if (count($tecnicos) > 0): ?>
+                    <?php foreach ($tecnicos as $tecnico): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($tecnico['id']); ?></td>
+                            <td><?php echo htmlspecialchars($tecnico['nome']); ?></td>
+                            <td><?php echo htmlspecialchars($tecnico['especialidade']); ?></td>
+                            <td><?php echo htmlspecialchars($tecnico['telefone']); ?></td>
+                            <td>
+                                <a href="atualizar_tecnico.php?id=<?php echo htmlspecialchars($tecnico['id']); ?>" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="excluir_tecnico.php?id=<?php echo htmlspecialchars($tecnico['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este técnico?');">Excluir</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($tecnico['id']); ?></td>
-                        <td><?php echo htmlspecialchars($tecnico['nome']); ?></td>
-                        <td><?php echo htmlspecialchars($tecnico['especialidade']); ?></td>
-                        <td><?php echo htmlspecialchars($tecnico['telefone']); ?></td>
-                        <td>
-                            <a href="atualizar_tecnico.php?id=<?php echo htmlspecialchars($tecnico['id']); ?>" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="excluir_tecnico.php?id=<?php echo htmlspecialchars($tecnico['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este técnico?');">Excluir</a>
-                        </td>
+                        <td colspan="5" class="text-center">Nenhum técnico encontrado.</td>
                     </tr>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>

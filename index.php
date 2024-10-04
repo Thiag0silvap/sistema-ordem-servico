@@ -11,7 +11,6 @@
     <h1>Sistema de Ordem de Serviço</h1>    
 </header>
 
-
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" href="#">SOS</a>
@@ -26,12 +25,12 @@
                 <li class="nav-item"><a class="nav-link" href="listar_clientes.php">Listar Clientes</a></li>
                 <li class="nav-item"><a class="nav-link" href="listar_tecnicos.php">Listar Técnicos</a></li>
                 <li class="nav-item"><a class="nav-link" href="listar_os.php">Listar Ordens de Serviço</a></li>
+                <li class="nav-item"><a class="nav-link" href="relatorio_clientes.php">Relatório de Clientes</a></li>
                 <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
             </ul>
         </div>
     </div>
 </nav>
-
 
 <main class="container mt-4">
     <section>
@@ -43,7 +42,21 @@
         <h3>Buscar Ordens de Serviço</h3>
         <form action="index.php" method="POST">
             <div class="input-group mb-3">
-                <input type="text" class="form-control" name="search" placeholder="Buscar por cliente ou status" value="<?php echo htmlspecialchars($search); ?>">
+                <?php
+                // Inicializando as variáveis para evitar erros
+                $search = '';
+                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search'])) {
+                    $search = htmlspecialchars($_POST['search']);
+                    // Adicione a lógica de busca aqui, que deve popular a variável $result
+                    require 'db.php'; // Certifique-se de incluir sua conexão com o banco de dados
+                    $stmt = $pdo->prepare("SELECT * FROM ordens_de_servico WHERE cliente_id LIKE :search OR status LIKE :search");
+                    $stmt->execute(['search' => '%' . $search . '%']);
+                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                } else {
+                    $result = []; // Inicializa como array vazio se não houver resultado
+                }
+                ?>
+                <input type="text" class="form-control" name="search" placeholder="Buscar por cliente ou status" value="<?php echo $search; ?>">
                 <div class="input-group-append">
                     <button class="btn btn-primary" type="submit">Buscar</button>
                 </div>
@@ -65,13 +78,13 @@
             </thead>
             <tbody>
                 <?php
-                if ($result && $result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
+                if (!empty($result)) {
+                    foreach ($result as $row) {
                         echo "<tr>";
                         echo "<td>" . $row['id'] . "</td>";
-                        echo "<td>" . $row['cliente'] . "</td>";
-                        echo "<td>" . $row['status'] . "</td>";
-                        echo "<td>" . date('d/m/Y H:i', strtotime($row['data_criacao'])) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['cliente_id']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['status']) . "</td>";
+                        echo "<td>" . date('d/m/Y', strtotime($row['data'])) . "</td>";
                         echo "<td><a href='ver_os.php?id=" . $row['id'] . "' class='btn btn-info'>Ver</a></td>";
                         echo "</tr>";
                     }

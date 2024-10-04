@@ -34,18 +34,24 @@ $clientes = $pdo->query('SELECT * FROM clientes')->fetchAll(PDO::FETCH_ASSOC);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($clientes as $cliente): ?>
+                    <?php if (count($clientes) > 0): ?>
+                        <?php foreach ($clientes as $cliente): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($cliente['id']); ?></td>
+                                <td><?php echo htmlspecialchars($cliente['nome']); ?></td>
+                                <td><?php echo htmlspecialchars($cliente['endereco']); ?></td>
+                                <td><?php echo htmlspecialchars($cliente['telefone']); ?></td>
+                                <td>
+                                    <a href="atualizar_cliente.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="btn btn-warning btn-sm">Editar</a>
+                                    <a href="excluir_cliente.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este cliente?');">Excluir</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($cliente['id']); ?></td>
-                            <td><?php echo htmlspecialchars($cliente['nome']); ?></td>
-                            <td><?php echo htmlspecialchars($cliente['endereco']); ?></td>
-                            <td><?php echo htmlspecialchars($cliente['telefone']); ?></td>
-                            <td>
-                                <a href="atualizar_cliente.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="btn btn-warning btn-sm">Editar</a>
-                                <a href="excluir_cliente.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este cliente?');">Excluir</a>
-                            </td>
+                            <td colspan="5" class="text-center">Nenhum cliente encontrado.</td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>

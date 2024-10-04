@@ -1,27 +1,34 @@
 <?php 
 require 'db.php';
 
-// Verifica se o ID da Ordem de Serviço foi passado pela URL
+// Verifica se o ID do Técnico foi passado pela URL
 if (isset($_GET['id'])) {
-    $os_id = filter_var($_GET['id'], FILTER_SANITIZE_NUMBER_INT);
+    $tecnico_id = filter_var($_GET['id'], FILTER_SANITIZE_NUMBER_INT);
 
     // Verifica se o ID é um número válido
-    if (filter_var($os_id, FILTER_VALIDATE_INT)) {
-        // Deleta a Ordem de Serviço do banco de dados
+    if (filter_var($tecnico_id, FILTER_VALIDATE_INT)) {
+        // Deleta o Técnico do banco de dados
         try {
-            $stmt = $pdo->prepare('DELETE FROM ordens_de_servico WHERE id = :id');
-            $stmt->execute(['id' => $os_id]);
+            $stmt = $pdo->prepare('DELETE FROM tecnicos WHERE id = :id');
+            $stmt->execute(['id' => $tecnico_id]);
 
-            // Redireciona para a página de lista de ordens de serviço com mensagem de sucesso
-            header('Location: listar_os.php?message=Ordem de serviço excluída com sucesso');
-            exit;
+            // Verifica se alguma linha foi afetada
+            if ($stmt->rowCount() > 0) {
+                // Redireciona para a página de lista de técnicos com mensagem de sucesso
+                header('Location: listar_tecnicos.php?message=Técnico excluído com sucesso');
+                exit;
+            } else {
+                // Se nenhuma linha foi afetada, o ID pode não existir
+                header('Location: listar_tecnicos.php?message=Técnico não encontrado');
+                exit;
+            }
         } catch (PDOException $e) {
-            echo 'Erro ao excluir ordem de serviço: ' . htmlspecialchars($e->getMessage());
+            echo 'Erro ao excluir técnico: ' . htmlspecialchars($e->getMessage());
         }
     } else {
-        echo 'ID da ordem de serviço inválido';
+        echo 'ID do técnico inválido';
     }
 } else {
-    echo 'ID da ordem de serviço não fornecido';
+    echo 'ID do técnico não fornecido';
 }
 ?>
